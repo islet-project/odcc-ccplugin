@@ -1,0 +1,20 @@
+// Copyright (c) 2026 Samsung Electronics Co., Ltd. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+java_library {
+    name: "libccplugin_islet_realm",
+    srcs: [ "src/**/*.java" ],
+    static_libs: [
+        "android.system.virtualization.payload-java",
+    ]
+}
+
+droiddoc {
+    name: "libccplugin_islet_realm-doc",
+    srcs: [
+        "src/**/*.java",
+        ":android.system.virtualization.payload.provisioning-src",
+    ],
+    custom_template: "metalava-manual",
+    visibility: ["//visibility:public"],
+}

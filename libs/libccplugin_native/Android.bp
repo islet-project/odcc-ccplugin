@@ -1,0 +1,48 @@
+// Copyright (c) 2026 Samsung Electronics Co., Ltd. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+// C++ payload in Microdroid that communicates with non-secure world using
+// the Microdroid AIDL with lifecycle methods added
+cc_library_shared {
+    name: "libccplugin_native",
+    defaults: ["avf_build_flags_cc"],
+    srcs: [
+        "NativeCCStub.cpp",
+    ],
+    stl: "libc++_static",
+    shared_libs: [
+        "libutils",
+        "libcutils",
+        "libbinder",
+        "libbinder_ndk",
+        "libvm_payload#current",
+        "libnativehelper",
+        "libnativeloader",
+    ],
+    static_libs: [
+        "libbase",
+        "liblog",
+        "ccplugin_aidl-ndk",
+        "libccplugin_jni",
+    ],
+}
+
+aidl_interface {
+    name: "ccplugin_aidl",
+    srcs: [
+        "com/islet/binder/service/IRealmService.aidl"
+    ],
+    unstable: true,
+    flags: [
+        "-Werror",
+        "-Wno-mixed-oneway",
+    ],
+    backend: {
+        java: {
+            gen_rpc: true,
+        },
+        cpp: {
+            enabled: true,
+        },
+    },
+}

@@ -1,0 +1,20 @@
+// Copyright (c) 2026 Samsung Electronics Co., Ltd. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+cc_library_static {
+    name: "libccplugin_jni",
+    srcs: ["src/*"],
+    export_include_dirs: ["include"],
+    static_libs: [
+        "libbase",
+    ],
+    shared_libs: [
+        "libutils",
+        "libcutils",
+        "libbinder",
+        "libbinder_ndk",
+        "libnativehelper",
+        "libnativeloader",
+        "libvm_payload#current",
+    ],
+}

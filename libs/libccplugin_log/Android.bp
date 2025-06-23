@@ -1,0 +1,21 @@
+// Copyright (c) 2026 Samsung Electronics Co., Ltd. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+java_library_static {
+    name: "libccplugin_log",
+    srcs: [
+        "java/com/islet/binder/service/Reader.java",
+        "java/com/islet/binder/service/Logger.java",
+    ],
+    sdk_version: "system_current"
+}
+
+
+droiddoc {
+    name: "libccplugin_log-doc",
+    srcs: [
+        "java/**/*.java",
+    ],
+    custom_template: "metalava-manual",
+    visibility: ["//visibility:public"],
+}
