@@ -1,0 +1,120 @@
+/**************************************************************************************/
+// The following section names's prefix(my_app) should be replaced to your own app name.
+// Please define your own app name and replace "my_app" to it in both your Android.bp
+// and ccplugin_template/Android.bp.
+/**************************************************************************************/
+
+// This should include all AIDL files, such as "my_app_aidl_for_realm" and "my_app_imported_aidl_for_realm".
+aidl_interface {
+    name: "my_app_aidl_interface",
+    srcs: [""], // NOTE: Please fill in this part
+    unstable: true,
+    flags: [
+        "-Werror",
+        "-Wno-mixed-oneway",
+    ],
+    backend: {
+        java: {
+            gen_rpc: true,
+        },
+        cpp: {
+            enabled: true,
+        },
+    },
+}
+
+// The main service file of your app which runs in the Realm world. It should be a java file.
+filegroup {
+    name: "my_app_service_for_realm",
+    srcs: [""], // NOTE: Please fill in this part
+}
+
+/*
+ * The actual implementation of this interface runs on "my_app_service_for_realm" in the Realm world.
+ * The CCProxyService uses this interface to relays requests from the Normal World to the Realm world.
+ */
+filegroup {
+    name: "my_app_aidl_for_realm",
+    srcs: [""], // NOTE: Please fill in this part
+}
+
+/*
+ * (Optional - if you have any imported aidl in "my_app_aidl_interface")
+ * The imported AIDL files used by "my_app_aidl_for_realm".
+ * If you have no such files, please remove the "my_app_imported_aidl_for_realm"  from all of the Android.bp files
+ */
+filegroup {
+    name: "my_app_imported_aidl_for_realm",
+    srcs: [""], // NOTE: Please fill in this part
+}
+
+/*
+ * (Optional - if you have any imported aidl in "my_app_aidl_interface")
+ * This filegroup marks the Android.bp used by the genrule to compute the AIDL -I path.
+ *
+ * Example:
+ *  (1) Imported AIDL file:  my/app/common/aidl/my/imported/Second.aidl
+ *      Package name:        my.imported   (→ package path: my/imported/Second.aidl)
+ *  (2) The Android.bp is at:  my/app/common/Android.bp
+ *  (3) Then the -I value MUST be:     -I my/app/common/aidl
+ *      so that < -I dir >/my/imported/Second.aidl matches the imported AIDL file.
+ *
+ * In other words, starting from `dirname $(location :my_app_uppermost_android_bp_path)` = my/app/common,
+ * you may need to append a subdirectory (e.g. /aidl) so that the directory
+ * passed to -I actually contains the package path of the imported .aidl files.
+ */
+filegroup {
+    name: "my_app_uppermost_android_bp_path",
+    srcs: ["Android.bp"],
+}
+
+// Configure this android_app section to define the CCPlugIn application and its dependencies.
+android_app {
+    name: "my_app", // NOTE: Please define your own app name and replace "my_app" to yours
+    srcs: [
+        ":my_app_generate_cc_proxy_service",
+    ],
+    resource_dirs: [""], // NOTE: Please fill in this part
+    manifest: "", // NOTE: Please fill in this part
+    additional_manifests: [
+        ":my_app_generated_android_manifest",
+    ],
+    assets: [
+        ":ccplugin_android_mockups_dex",
+        ":my_app_java_lib_for_realm_dex",
+        ":my_app_ccplugin_vm_configs",
+        ":my_app_generate_realm_target_service_str",
+    ],
+    static_libs: [
+        "androidx-constraintlayout_constraintlayout",
+        "androidx.appcompat_appcompat",
+        "com.google.android.material_material",
+        "my_app_aidl_interface-java",
+        "ccplugin_aidl-java",
+        "libccplugin_log",
+        "libccplugin_vm",
+    ],
+    sdk_version: "system_current",
+    jni_libs: ["libccplugin_native"],
+    jni_uses_platform_apis: true,
+    use_embedded_native_libs: true,
+    v4_signature: true,
+    min_sdk_version: "33",
+}
+
+/*
+ * Java secure payload composed of unmodified original service and its
+ * dependencies. Please configure this section
+ * E.g, if your "my_app_service_for_realm" needs other static_libs, please add them here.
+ */
+java_library {
+    name: "my_app_java_lib_for_realm",
+    srcs: [
+        ":my_app_service_for_realm",
+    ],
+    static_libs: [
+        "my_app_aidl_interface-java",
+        "libccplugin_mockups",
+        "libccplugin_log",
+    ],
+}

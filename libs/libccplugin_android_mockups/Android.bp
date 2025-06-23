@@ -1,0 +1,49 @@
+// Copyright (c) 2026 Samsung Electronics Co., Ltd. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+// This should become its own APEX at some point, mounted in Microdroid
+
+// Those are Android mockups that will be used by the unmodified service
+// running in Microdroid.
+
+// It seems that this compiles with android deps present.
+// Not sure this is an issue at this point, something to remember.
+java_library {
+    name: "libccplugin_mockups",
+    srcs: [
+        "android/**/*.java",
+        "com/**/*.java",
+        "android/**/*.aidl",
+    ],
+    libs: [
+        "core-icu4j"
+    ],
+    static_libs: [
+        "libccplugin_islet_realm"
+    ]
+}
+
+// A rule to package the mockups as an asset.
+genrule {
+    name: "ccplugin_android_mockups_dex",
+    tools: [ "d8" ],
+    srcs: [ ":libccplugin_mockups" ],
+    out: [ "android-mockups.jar" ],
+    cmd: "$(location d8) $(in) --output $(genDir)/android-mockups.zip && " +
+         "unzip $(genDir)/android-mockups.zip -d $(genDir) && " +
+         "jar cf $(out) -C $(genDir) classes.dex"
+}
+
+droiddoc {
+    name: "libccplugin_mockups-doc",
+    srcs: [
+        "android/**/*.java",
+        "com/**/*.java",
+        "android/**/*.aidl",
+    ],
+    libs: [
+        "core-icu4j"
+    ],
+    custom_template: "metalava-manual",
+    visibility: ["//visibility:public"],
+}

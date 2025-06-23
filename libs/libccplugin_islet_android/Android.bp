@@ -1,0 +1,12 @@
+// Copyright (c) 2026 Samsung Electronics Co., Ltd. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+// This is a dummy/stub implementation of Cca java library. It doesn't provide any functionality.
+// This should be imported by the Android application service code only for the development purposes
+// on the Android side. When the service is ported to CC, it will use a proper implementation providing
+// Islet functionality (provided by libccplugin_android_mockups).
+java_library {
+    name: "libccplugin_islet_android",
+    srcs: [ "src/**/*.java" ],
+    sdk_version: "current",
+}

@@ -1,0 +1,81 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+/**************************************************************************************/
+// The following section names's prefix(my_app) should be replaced to your own app name.
+// Please Define your own app name and replace "my_app" to it in both your Android.bp
+// and ccplugin_template/Android.bp.
+/**************************************************************************************/
+
+// A rule to package the above java payload as an asset.
+genrule {
+    name: "my_app_java_lib_for_realm_dex",
+    tools: [ "d8" ],
+    srcs: [ ":my_app_java_lib_for_realm" ],
+    out: [ "confidential-service.dex" ],
+    cmd : "$(location d8) $(in) --output $(genDir)/confidential-service.zip && " +
+          "unzip $(genDir)/confidential-service.zip -d $(genDir) &&" +
+          "cp $(genDir)/classes.dex $(out)"
+}
+
+gensrcs {
+    name: "my_app_generate_cc_proxy_service",
+    tools: ["aidl"],
+    srcs: [":my_app_service_for_realm"],
+    output_extension: "java",
+    tool_files: [
+        ":my_app_aidl_for_realm",
+        ":my_app_uppermost_android_bp_path",
+        ":my_app_imported_aidl_for_realm",
+    ],
+    cmd: "$(location aidl) --lang=java " +
+    "-Weverything -Wno-missing-permission-annotation " +
+    "-Werror -Wno-mixed-oneway --min_sdk_version current " +
+    "--ninja -o out/`dirname $(location :my_app_service_for_realm) | sed 's#^\\./##'` " +
+    "-N . -N `dirname $(location :my_app_uppermost_android_bp_path)` " +
+    "$(location :my_app_aidl_for_realm)",
+}
+
+genrule {
+    name: "my_app_generate_realm_target_service_str",
+    tools: ["aidl"],
+    srcs: [
+        ":my_app_aidl_for_realm",
+        ":my_app_uppermost_android_bp_path",
+        ":my_app_imported_aidl_for_realm",
+    ],
+    out: ["target_service.txt"],
+    cmd: "$(location aidl) --lang=cpp " +
+    "-Weverything -Wno-missing-permission-annotation " +
+    "-Werror -Wno-mixed-oneway --min_sdk_version current " +
+    "-h external/CCPlugIn/gen " +
+    "--ninja -o out -N . -N $$(dirname $(location :my_app_uppermost_android_bp_path)) " +
+    "$(location :my_app_aidl_for_realm)",
+}
+
+genrule {
+    name: "my_app_generate_android_manifest",
+    tools: ["aidl"],
+    srcs: [
+        ":my_app_aidl_for_realm",
+        ":my_app_uppermost_android_bp_path",
+        ":my_app_imported_aidl_for_realm",
+    ],
+    out: ["AndroidManifest.xml"],
+    cmd: "$(location aidl) --lang=java " +
+    "-Weverything -Wno-missing-permission-annotation " +
+    "-Werror -Wno-mixed-oneway --min_sdk_version current " +
+    "--ninja -o out -N . -N $$(dirname $(location :my_app_uppermost_android_bp_path)) " +
+    "$(location :my_app_aidl_for_realm)",
+}
+
+filegroup {
+    name: "my_app_generated_android_manifest",
+    srcs: [":my_app_generate_android_manifest"],
+}
+
+filegroup {
+    name: "my_app_ccplugin_vm_configs",
+    srcs: ["vm_configs/*.json"],
+}
