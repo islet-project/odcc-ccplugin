@@ -2103,137 +2103,6 @@ function showSamples() {
   });
 })(jQuery);
 
-(function($, window) {
-  'use strict';
-
-  // Blogger API info
-  var apiUrl = 'https://www.googleapis.com/blogger/v3';
-  var apiKey = 'AIzaSyCFhbGnjW06dYwvRCU8h_zjdpS4PYYbEe8';
-
-  // Blog IDs can be found in the markup of the blog posts
-  var blogs = {
-    'android-developers': {
-      id: '6755709643044947179',
-      title: 'Android Developers Blog'
-    }
-  };
-  var monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'];
-
-  var BlogReader = (function() {
-    var reader;
-
-    function BlogReader() {
-      this.doneSetup = false;
-    }
-
-    /**
-     * Initialize the blog reader and modal.
-     */
-    BlogReader.prototype.setup = function() {
-      $('#jd-content').append(
-          '<div id="blog-reader" data-modal="blog-reader" class="dac-modal dac-has-small-header">' +
-            '<div class="dac-modal-container">' +
-              '<div class="dac-modal-window">' +
-                '<header class="dac-modal-header">' +
-                  '<div class="dac-modal-header-actions">' +
-                    '<a href="" class="dac-modal-header-open" target="_blank">' +
-                      '<i class="dac-sprite dac-open-in-new"></i>' +
-                    '</a>' +
-                    '<button class="dac-modal-header-close" data-modal-toggle>' +
-                    '</button>' +
-                  '</div>' +
-                  '<h2 class="norule dac-modal-header-title"></h2>' +
-                '</header>' +
-                '<div class="dac-modal-content dac-blog-reader">' +
-                  '<time class="dac-blog-reader-date" pubDate></time>' +
-                  '<h3 class="dac-blog-reader-title"></h3>' +
-                  '<div class="dac-blog-reader-text clearfix"></div>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-          '</div>');
-
-      this.blogReader = $('#blog-reader').dacModal();
-
-      this.doneSetup = true;
-    };
-
-    BlogReader.prototype.openModal_ = function(blog, post) {
-      var published = new Date(post.published);
-      var formattedDate = monthNames[published.getMonth()] + ' ' + published.getDate() + ' ' + published.getFullYear();
-      this.blogReader.find('.dac-modal-header-open').attr('href', post.url);
-      this.blogReader.find('.dac-modal-header-title').text(blog.title);
-      this.blogReader.find('.dac-blog-reader-title').html(post.title);
-      this.blogReader.find('.dac-blog-reader-date').html(formattedDate);
-      this.blogReader.find('.dac-blog-reader-text').html(post.content);
-      this.blogReader.trigger('modal-open');
-    };
-
-    /**
-     * Show a blog post in a modal
-     * @param  {string} blogName - The name of the Blogspot blog.
-     * @param  {string} postPath - The path to the blog post.
-     * @param  {bool} secondTry - Has it failed once?
-     */
-    BlogReader.prototype.showPost = function(blogName, postPath, secondTry) {
-      var blog = blogs[blogName];
-      var postUrl = 'https://' + blogName + '.blogspot.com' + postPath;
-
-      var url = apiUrl + '/blogs/' + blog.id + '/posts/bypath?path=' + encodeURIComponent(postPath) + '&key=' + apiKey;
-      $.ajax(url, {timeout: 650}).done(this.openModal_.bind(this, blog)).fail(function(error) {
-        // Retry once if we get an error
-        if (error.status === 500 && !secondTry) {
-          this.showPost(blogName, postPath, true);
-        } else {
-          window.location.href = postUrl;
-        }
-      }.bind(this));
-    };
-
-    return {
-      getReader: function() {
-        if (!reader) {
-          reader = new BlogReader();
-        }
-        return reader;
-      }
-    };
-  })();
-
-  var blogReader = BlogReader.getReader();
-
-  function wrapLinkWithReader(e) {
-    var el = $(e.currentTarget);
-    if (el.hasClass('dac-modal-header-open')) {
-      return;
-    }
-
-    // Only catch links on blogspot.com
-    var matches = el.attr('href').match(/https?:\/\/([^\.]*).blogspot.com([^$]*)/);
-    if (matches && matches.length === 3) {
-      var blogName = matches[1];
-      var postPath = matches[2];
-
-      // Check if we have information about the blog
-      if (!blogs[blogName]) {
-        return;
-      }
-
-      // Setup the first time it's used
-      if (!blogReader.doneSetup) {
-        blogReader.setup();
-      }
-
-      e.preventDefault();
-      blogReader.showPost(blogName, postPath);
-    }
-  }
-
-  $(document).on('click.blog-reader', 'a.resource-card[href*="blogspot.com/"]',
-      wrapLinkWithReader);
-})(jQuery, window);
-
 (function($) {
   $.fn.debounce = function(func, wait, immediate) {
     var timeout;
@@ -5475,20 +5344,10 @@ window.metadata.search = (function() {
   }
 
   function customSearch(query, start) {
-    var searchParams = {
-      // current cse instance:
-      //cx: '001482626316274216503:zu90b7s047u',
-      // new cse instance:
-      cx: '000521750095050289010:zpcpi1ea4s8',
-      key: 'AIzaSyCFhbGnjW06dYwvRCU8h_zjdpS4PYYbEe8',
-      q: query,
-      start: start || 1,
-      num: 9,
-      hl: getSearchLang(),
-      fields: 'queries,items(pagemap,link,title,htmlSnippet,formattedUrl)'
-    };
-
-    return $.get('https://content.googleapis.com/customsearch/v1?' +  $.param(searchParams));
+    // Google Custom Search JSON API not used for static Javadoc (no API key).
+    var dfd = $.Deferred();
+    dfd.resolve({ items: null });
+    return dfd.promise();
   }
 
   function renderResults(el, results, searchAppliance) {
