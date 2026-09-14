@@ -74,6 +74,29 @@ Refer to these sample apps to learn how to apply CCPlugIn to your service:
 - [odcc-example-aosp](https://github.com/islet-project/odcc-example-aosp/tree/on-device-cc)
 - [odcc-tf-lite-bert-qa](https://github.com/islet-project/odcc-tf-lite-bert-qa)
 
+In case your service uses the remote provisioning mechanism, you can configure a whitelist of allowed
+provisioning servers. Once a whitelist is configured, the confidential service will be able to connect only
+to a predefined list of provisioning servers. The list also defines the hard limit of transmitted bytes imposed on the outgoing direction i.e.
+from the Realm VM to provisioning servers.
+
+To configure the whitelist mechanism, you need to create and place a file named `whitelist.json` inside the `assets` folder of the service application. The file should contain an array of objects in JSON format.
+
+Each JSON object should contain following fields:
+
+- `address` - an IP address or hostname of a provisioning server
+- `port` - the port on which the provisioning server is listening
+- `protocol` - the protocol that is used by the provisioning server (`Tcp` or `Udp`, currently the provisioning mechanism uses only `Tcp` protocol)
+- `tx_bytes_limit` - the hard limit of send bytes, usually it should be set to some small arbitrary value that would safely send a TLS handshake and an
+                     HTTP request; note that usually the Realm VM receives much more data (e.g. ML models) than it sends outside the device.
+
+Here is an example content of `whitelist.json` file used for provisioning of TensorFlow Lite BERT QA model:
+
+```json
+[
+	{ "address": "192.168.97.1", "port": 1337, "protocol": "Tcp", "tx_bytes_limit": 4096 }
+]
+```
+
 ## Building
 
 ```
